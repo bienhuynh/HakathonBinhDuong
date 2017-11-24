@@ -26,7 +26,7 @@ namespace GNNT.Bot.Server.API.Controllers
         }
 
         [HttpGet]
-        [Route("api/AskPlaces/Reply/{message}")]
+        [Route("api/AskPlaces/ReplyMessage/{message}")]
         public List<Answer> Reply(string message)
         {
             //message = "Biết AEON MALL Bình Dương Canary không ?";
@@ -61,8 +61,44 @@ namespace GNNT.Bot.Server.API.Controllers
             return null;
         }
 
+        [HttpPost]
+        [Route("api/AskPlaces/Reply")]
+        public List<Answer> Post()
+        {
+            string message = "Hello";
+            dataPlaces = dataPlacesService.ReturnData();
+            string URL = "https://fifo-88857.firebaseio.com/messages/.json";
+            BotService.BotWithDatabase bot = new BotService.BotWithDatabase(URL);
+
+            foreach (MPlace item in dataPlaces)
+            {
+                foreach (Ask i in item.askList)
+                {
+                    if (i.Text == message)
+                    {
+                        List<Models.MessageText> listMessage = new List<Models.MessageText>();
+                        foreach (Answer anwser in item.answerlist)
+                        {
+                            listMessage.Add(new Models.MessageText { name = "Bot", message = anwser.Text, photoUrl = photoBot });
+                        }
+                        bot.BotSendListMessageText(listMessage);
+                        return item.answerlist;
+                    }
+                }
+            }
+            bot.BotSendListMessageText
+                (
+                    new List<Models.MessageText>
+                    {
+                        new Models.MessageText { name = "bot", photoUrl = photoBot, message = "bot not understand!" },
+                        new Models.MessageText { name = "bot", photoUrl = photoBot, message = "I'm Sorry!" }
+                    }
+                );
+            return null;
+        }
         // POST api/<controller>
         [HttpPost]
+        [Route("api/AskPlaces/Reply")]
         public List<Answer> Post(string message)
         {
             dataPlaces = dataPlacesService.ReturnData();
