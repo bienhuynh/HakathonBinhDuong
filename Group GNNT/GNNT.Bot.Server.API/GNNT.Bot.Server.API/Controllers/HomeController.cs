@@ -11,7 +11,8 @@ namespace GNNT.Bot.Server.API.Controllers
         public ActionResult Index()
         {
             ViewBag.Title = "Home Page";
-
+            AskPlacesController askPlace = new AskPlacesController();
+            askPlace.Post();
             return View();
         }
     }
