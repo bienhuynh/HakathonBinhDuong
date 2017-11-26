@@ -73,6 +73,7 @@ namespace GNNT.Bot.Server.API.Controllers
         {
             if (name != nameBot) 
             {
+                bool flag = true;
                 foreach (MPlace item in this.dataPlaces)
                 {
                     foreach (Ask i in item.askList)
@@ -85,8 +86,20 @@ namespace GNNT.Bot.Server.API.Controllers
                                 listMessage.Add(new Models.MessageText { name = nameBot, text = anwser.Text, photoUrl = photoBot });
                             }
                             bot.BotSendMessageText(listMessage[0]);
+                            flag = !flag;
                         }
                     }
+                }
+                if(flag)
+                {
+                    bot.BotSendListMessageText
+                    (
+                        new List<Models.MessageText>
+                        {
+                                        new Models.MessageText { name = nameBot, photoUrl = photoBot, text = "bot not understand!" },
+                                        new Models.MessageText { name = nameBot, photoUrl = photoBot, text = "I'm Sorry!" }
+                        }
+                    );
                 }
             }
             else
@@ -99,40 +112,15 @@ namespace GNNT.Bot.Server.API.Controllers
         [Route("api/AskPlaces/Reply")]
         public void Post()
         {
-            string message = "";
+            //string message = "";
             dataPlaces = dataPlacesService.ReturnData();
             string URL = "https://fifo-88857.firebaseio.com/messages/.json";
             BotService.BotWithDatabase bot = new BotService.BotWithDatabase(URL);
-            //bot.BotSendMessageText(new Models.MessageText { name = "bot", text = message, photoUrl = photoBot });
-            //bot.ReadNewRecord();
+            
             observable = firebase.Child("messages").OrderByPriority().LimitToLast(1)
             .AsObservable<MessageText>()
             .Subscribe(f => Search(dataPlaces, bot, f.Object.name,f.Object.text));
-            
-            //foreach (MPlace item in this.dataPlaces)
-            //{
-            //    foreach (Ask i in item.askList)
-            //    {
-            //        if (i.Text == message)
-            //        {
-            //            List<Models.MessageText> listMessage = new List<Models.MessageText>();
-            //            foreach (Answer anwser in item.answerlist)
-            //            {
-            //                listMessage.Add(new Models.MessageText { name = nameBot, text = anwser.Text, photoUrl = photoBot });
-            //            }
-            //            bot.BotSendListMessageText(listMessage);
-            //            return;
-            //        }
-            //    }
-            //}
-            //bot.BotSendListMessageText
-            //    (
-            //        new List<Models.MessageText>
-            //        {
-            //            new Models.MessageText { name = "bot", photoUrl = photoBot, text = "bot not understand!" },
-            //            new Models.MessageText { name = "bot", photoUrl = photoBot, text = "I'm Sorry!" }
-            //        }
-            //    );
+            Status.Sucess = "Sucessful!";
             //return null;
         }
         // POST api/<controller>
